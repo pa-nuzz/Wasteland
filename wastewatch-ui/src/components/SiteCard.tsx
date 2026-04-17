@@ -1,21 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { X, MapPin, Users, Activity, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import type { Site } from '@/lib/api'
 import { getRiskColor, getRiskBadgeClass, formatNumber } from '@/lib/utils'
 import SparklineChart from './SparklineChart'
-
-interface Site {
-  wwtp_id: string
-  wwtp_jurisdiction: string | null
-  county_names: string | null
-  population_served: number | null
-  pathogen: string
-  risk_level: string
-  z_score: number | null
-  trend: string | null
-  latest_value: number | null
-  scored_at: string | null
-}
 
 interface SiteCardProps {
   site: Site
@@ -36,7 +25,7 @@ function TrendIcon({ trend }: { trend: string | null }) {
 }
 
 export default function SiteCard({ site, onClose }: SiteCardProps) {
-  const [selectedPathogen, setSelectedPathogen] = site.pathogen
+  const [selectedPathogen, setSelectedPathogen] = useState(site.pathogen)
 
   return (
     <div className="bg-card border border-slate-700 rounded-lg p-4 w-full max-w-md">
@@ -86,12 +75,11 @@ export default function SiteCard({ site, onClose }: SiteCardProps) {
           {pathogenTabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => {}}
-              disabled={tab.id !== site.pathogen}
+              onClick={() => setSelectedPathogen(tab.id)}
               className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                tab.id === site.pathogen
+                tab.id === selectedPathogen
                   ? 'bg-blue-500/20 text-blue-400 border border-blue-500/50'
-                  : 'bg-slate-700/50 text-slate-500 cursor-not-allowed'
+                  : 'bg-slate-700/50 text-slate-400 hover:bg-slate-600/50'
               }`}
             >
               {tab.label}
@@ -103,7 +91,7 @@ export default function SiteCard({ site, onClose }: SiteCardProps) {
       <div className="border-t border-slate-700 pt-4">
         <SparklineChart
           wwtpId={site.wwtp_id}
-          pathogen={site.pathogen}
+          pathogen={selectedPathogen}
           color={getRiskColor(site.risk_level)}
         />
       </div>

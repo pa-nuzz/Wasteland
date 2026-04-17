@@ -1,28 +1,15 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import useSWR from 'swr'
 import { Activity, Menu, X } from 'lucide-react'
-import { api } from '@/lib/api'
+import { api, type Site } from '@/lib/api'
 import AlertBanner from '@/components/AlertBanner'
 import SummaryBar from '@/components/SummaryBar'
 import SiteCard from '@/components/SiteCard'
 
 const Map = dynamic(() => import('@/components/Map'), { ssr: false })
-
-interface Site {
-  wwtp_id: string
-  wwtp_jurisdiction: string | null
-  county_names: string | null
-  population_served: number | null
-  pathogen: string
-  risk_level: string
-  z_score: number | null
-  trend: string | null
-  latest_value: number | null
-  scored_at: string | null
-}
 
 const pathogenTabs = [
   { id: 'all', label: 'All' },
@@ -37,7 +24,7 @@ export default function Dashboard() {
   const [selectedSite, setSelectedSite] = useState<Site | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const { data: sites, isLoading } = useSWR(
+  const { data: sites, isLoading } = useSWR<Site[]>(
     ['sites', selectedPathogen],
     () => api.getSites(selectedPathogen === 'all' ? undefined : { pathogen: selectedPathogen }),
     { refreshInterval: 300000 }

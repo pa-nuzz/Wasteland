@@ -1,9 +1,11 @@
 'use client'
 
 import { useMemo } from 'react'
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import type { Site } from '@/lib/api'
+import { getJurisdictionCoords } from '@/lib/jurisdictionCoords'
 
 // Fix default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -12,19 +14,6 @@ L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
-
-interface Site {
-  wwtp_id: string
-  wwtp_jurisdiction: string | null
-  county_names: string | null
-  population_served: number | null
-  pathogen: string
-  risk_level: string
-  z_score: number | null
-  trend: string | null
-  latest_value: number | null
-  scored_at: string | null
-}
 
 interface MapProps {
   sites: Site[]
@@ -45,25 +34,19 @@ function getRadius(population: number | null): number {
   return Math.max(4, Math.min(20, radius))
 }
 
-function MapController({ sites }: { sites: Site[] }) {
-  const map = useMap()
-  
-  useMemo(() => {
-    if (sites.length > 0) {
-      const validSites = sites.filter(s => s.population_served)
-      if (validSites.length > 0) {
-        const bounds = L.latLngBounds(
-          validSites.map(s => [39.5, -98.35] as L.LatLngExpression)
-        )
-        map.fitBounds(bounds, { padding: [50, 50] })
-      }
-    }
-  }, [sites, map])
-  
-  return null
+interface SiteWithCoords extends Site {
+  coords: [number, number]
 }
 
 export default function Map({ sites, onSiteClick }: MapProps) {
+  const sitesWithCoords = useMemo<SiteWithCoords[]>(() => {
+    return sites
+      .map(site => {
+        const coords = getJurisdictionCoords(site.wwtp_jurisdiction)
+        return coords ? { ...site, coords } : null
+      })
+      .filter((site): site is SiteWithCoords => site !== null)
+  }, [sites])
   return (
     <MapContainer
       center={[39.5, -98.35]}
@@ -75,11 +58,10 @@ export default function Map({ sites, onSiteClick }: MapProps) {
         url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         attribution='&copy; <a href="https://carto.com/">CARTO</a>'
       />
-      <MapController sites={sites} />
-      {sites.map((site) => (
+      {sitesWithCoords.map((site) => (
         <CircleMarker
           key={`${site.wwtp_id}-${site.pathogen}`}
-          center={[39.5 + (Math.random() - 0.5) * 10, -98.35 + (Math.random() - 0.5) * 20]}
+          center={site.coords}
           radius={getRadius(site.population_served)}
           fillColor={riskColors[site.risk_level] || riskColors.insufficient_data}
           color={riskColors[site.risk_level] || riskColors.insufficient_data}

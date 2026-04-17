@@ -1,24 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import useSWR from 'swr'
 import Link from 'next/link'
 import { ArrowLeft, AlertTriangle, ArrowUpDown } from 'lucide-react'
-import { api } from '@/lib/api'
+import { api, Site, AlertsResponse } from '@/lib/api'
 import { getRiskColor, getRiskBadgeClass, formatNumber } from '@/lib/utils'
 import SparklineChart from '@/components/SparklineChart'
-
-interface Alert {
-  wwtp_id: string
-  wwtp_jurisdiction: string | null
-  county_names: string | null
-  population_served: number | null
-  pathogen: string
-  risk_level: string
-  z_score: number | null
-  trend: string | null
-  latest_value: number | null
-}
 
 type SortField = 'z_score' | 'jurisdiction' | 'pathogen'
 type SortOrder = 'asc' | 'desc'
@@ -28,7 +16,7 @@ export default function AlertsPage() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
 
-  const { data, isLoading } = useSWR(
+  const { data, isLoading } = useSWR<AlertsResponse>(
     'alerts',
     () => api.getAlerts(),
     { refreshInterval: 120000 }
@@ -148,9 +136,8 @@ export default function AlertsPage() {
               </thead>
               <tbody className="divide-y divide-slate-700">
                 {sortedAlerts.map((alert) => (
-                  <>
+                  <React.Fragment key={`${alert.wwtp_id}-${alert.pathogen}`}>
                     <tr
-                      key={alert.wwtp_id}
                       className="hover:bg-slate-800/30 cursor-pointer"
                       onClick={() => toggleRow(alert.wwtp_id)}
                     >
@@ -189,7 +176,7 @@ export default function AlertsPage() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
