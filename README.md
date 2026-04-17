@@ -1,3 +1,4 @@
+
 # WasteWatch
 
 Public health wastewater surveillance platform. Real-time monitoring of viral pathogen levels across wastewater treatment facilities.
@@ -171,6 +172,61 @@ sudo systemctl enable wastewatch-scheduler
 
 # Or using PM2
 pm2 start "python -m pipeline.scheduler" --name wastewatch-scheduler
+```
+
+## Enterprise Use Cases
+
+WasteWatch is designed for integration into enterprise healthcare and public health workflows:
+
+### Public Health Departments
+- Integrate NWSS data into existing SQL-based surveillance pipelines
+- Query the SQLite database directly for custom analytics and reporting
+- Use the REST API to feed data into existing BI tools (Tableau, Power BI, Looker)
+- Export historical trends for epidemiological studies and outbreak investigations
+
+### Hospital Systems & Health Networks
+- Early warning signals for resource planning and capacity management
+- Track local pathogen prevalence to anticipate patient volume
+- Integrate with EHR systems via API for contextual patient risk assessment
+- Monitor regional trends across service areas
+
+### Healthcare Analytics Companies
+- **Lefrog, Cedargate, and similar vendors** can query the standardized REST API or SQLite database
+- Direct SQL access to 800k+ measurement records with indexed risk scores
+- Real-time data pipeline demonstrating CDC data integration patterns
+- Foundation for ML/AI models predicting outbreak severity
+
+### Epidemiology & Research Teams
+- Track pathogen trends across jurisdictions with 12-week rolling history
+- Z-score normalized detection levels enable cross-site comparison
+- County-level granularity for hyperlocal surveillance
+- Automated daily refresh ensures research datasets stay current
+
+### Integration Patterns
+
+```sql
+-- Direct SQLite query for custom analytics
+SELECT 
+  wwtp_jurisdiction,
+  pathogen,
+  COUNT(*) as site_count,
+  AVG(z_score) as avg_risk
+FROM risk_scores
+WHERE risk_level IN ('critical', 'elevated')
+GROUP BY wwtp_jurisdiction, pathogen;
+```
+
+```python
+# API integration for downstream systems
+import requests
+
+alerts = requests.get(
+  'http://localhost:8000/api/alerts'
+).json()
+
+for alert in alerts['alerts']:
+    if alert['risk_level'] == 'critical':
+        notify_epi_team(alert)
 ```
 
 ## License

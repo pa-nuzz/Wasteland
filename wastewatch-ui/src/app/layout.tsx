@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'WasteWatch - Public Health Wastewater Surveillance',
-  description: 'Real-time wastewater surveillance dashboard for public health monitoring',
+  title: 'WasteWatch — Wastewater Epidemiological Surveillance',
+  description: 'Enterprise-grade public health wastewater surveillance. Real-time pathogen monitoring across 800+ CDC NWSS facilities.',
 }
 
 export default function RootLayout({
