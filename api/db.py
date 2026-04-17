@@ -152,16 +152,19 @@ def get_national_summary() -> Dict[str, Any]:
                 r.z_score,
                 r.risk_level,
                 r.latest_value,
-                m.wwtp_jurisdiction,
-                m.county_names
+                r.county_names,
+                (SELECT wwtp_jurisdiction FROM measurements 
+                 WHERE wwtp_id = r.wwtp_id AND pathogen = r.pathogen 
+                 LIMIT 1) as wwtp_jurisdiction
             FROM risk_scores r
-            LEFT JOIN measurements m ON r.wwtp_id = m.wwtp_id AND r.pathogen = m.pathogen
-            GROUP BY r.wwtp_id, r.pathogen
             ORDER BY r.z_score DESC
             LIMIT 10
             """
         )
         top_sites = [dict(row) for row in cursor.fetchall()]
+
+        cursor.execute("SELECT SUM(population_served) as total_pop FROM risk_scores")
+        total_pop = cursor.fetchone()["total_pop"] or 0
 
         return {
             "total_sites": total_sites,
@@ -169,6 +172,7 @@ def get_national_summary() -> Dict[str, Any]:
             "risk_breakdown": risk_breakdown,
             "last_data_refresh": last_refresh,
             "top_sites": top_sites,
+            "population_total": total_pop,
         }
 
 
@@ -178,26 +182,12 @@ def get_alerts() -> List[Dict[str, Any]]:
         cursor = conn.cursor()
         cursor.execute(
             """
-            SELECT 
-                r.wwtp_id,
-                r.pathogen,
-                r.risk_level,
-                r.z_score,
-                r.trend,
-                r.latest_value,
-                r.scored_at,
-                m.wwtp_jurisdiction,
-                m.population_served,
-                m.county_names
+            SELECT DISTINCT
+                r.wwtp_id, r.pathogen, r.risk_level, r.z_score, r.trend,
+                r.latest_value, r.scored_at, r.population_served, r.county_names,
+                (SELECT wwtp_jurisdiction FROM measurements 
+                 WHERE wwtp_id = r.wwtp_id LIMIT 1) as wwtp_jurisdiction
             FROM risk_scores r
-            LEFT JOIN measurements m ON r.wwtp_id = m.wwtp_id AND r.pathogen = m.pathogen
-            JOIN (
-                SELECT wwtp_id, pathogen, MAX(date_start) as max_date
-                FROM measurements
-                GROUP BY wwtp_id, pathogen
-            ) latest ON m.wwtp_id = latest.wwtp_id 
-                   AND m.pathogen = latest.pathogen 
-                   AND m.date_start = latest.max_date
             WHERE r.risk_level IN ('critical', 'elevated')
             ORDER BY r.z_score DESC
             """

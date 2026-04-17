@@ -47,6 +47,7 @@ class NationalSummaryResponse(BaseModel):
     risk_breakdown: Dict[str, Dict[str, int]]
     last_data_refresh: Optional[str] = None
     top_sites: List[TopSite]
+    population_total: Optional[float] = None
 
 
 class AlertSite(BaseModel):

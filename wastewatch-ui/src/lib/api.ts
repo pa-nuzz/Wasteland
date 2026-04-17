@@ -38,6 +38,7 @@ export interface SummaryResponse {
   low_count: number
   last_updated: string
   top_critical: Site[]
+  population_total?: number
 }
 
 export interface AlertsResponse {

@@ -11,6 +11,11 @@ def init_db(db_path: Path = DB_PATH) -> None:
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
+    # Enable WAL mode for concurrent reads/writes
+    cursor.execute("PRAGMA journal_mode=WAL")
+    cursor.execute("PRAGMA synchronous=NORMAL")
+    cursor.execute("PRAGMA cache_size=-64000")
+
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS measurements (
