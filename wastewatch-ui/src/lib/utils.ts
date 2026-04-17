@@ -6,11 +6,11 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const riskColors = {
-  critical: '#ef4444',
-  elevated: '#f97316',
-  moderate: '#facc15',
-  low: '#22c55e',
-  insufficient_data: '#94a3b8',
+  critical: '#f43f5e',
+  elevated: '#fb923c',
+  moderate: '#fbbf24',
+  low: '#34d399',
+  insufficient_data: '#4b6a8a',
 }
 
 export const riskLabels = {

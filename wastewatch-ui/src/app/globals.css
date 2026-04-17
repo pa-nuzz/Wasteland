@@ -5,20 +5,32 @@
 @tailwind utilities;
 
 :root {
-  --background: #0f172a;
-  --card: #1e293b;
-  --text-primary: #ffffff;
-  --text-secondary: #94a3b8;
-  --critical: #ef4444;
-  --elevated: #f97316;
-  --moderate: #facc15;
-  --low: #22c55e;
-  --insufficient: #94a3b8;
+  --background: #080d14;
+  --surface: #0d1520;
+  --card: #111c2d;
+  --card-hover: #162236;
+  --border: #1e3048;
+  --border-subtle: #152030;
+  --text-primary: #e8f0fe;
+  --text-secondary: #6b8cae;
+  --text-muted: #3d5a78;
+  --accent: #2563eb;
+  --accent-glow: rgba(37, 99, 235, 0.15);
+  --critical: #f43f5e;
+  --elevated: #fb923c;
+  --moderate: #fbbf24;
+  --low: #34d399;
+  --insufficient: #4b6a8a;
 }
 
 body {
   background-color: var(--background);
+  background-image: 
+    linear-gradient(rgba(37, 99, 235, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
   color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 .leaflet-container {
@@ -46,24 +58,91 @@ body {
 
 /* Risk level badges */
 .badge-critical {
-  @apply inline-flex px-2 py-0.5 rounded text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/50;
+  @apply inline-flex px-2 py-0.5 rounded text-xs font-semibold;
+  background: rgba(244, 63, 94, 0.15);
+  color: #f43f5e;
+  border: 1px solid rgba(244, 63, 94, 0.4);
 }
 
 .badge-elevated {
-  @apply inline-flex px-2 py-0.5 rounded text-xs font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/50;
+  @apply inline-flex px-2 py-0.5 rounded text-xs font-semibold;
+  background: rgba(251, 146, 60, 0.15);
+  color: #fb923c;
+  border: 1px solid rgba(251, 146, 60, 0.4);
 }
 
 .badge-moderate {
-  @apply inline-flex px-2 py-0.5 rounded text-xs font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/50;
+  @apply inline-flex px-2 py-0.5 rounded text-xs font-semibold;
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
 }
 
 .badge-low {
-  @apply inline-flex px-2 py-0.5 rounded text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/50;
+  @apply inline-flex px-2 py-0.5 rounded text-xs font-semibold;
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
 }
 
 .badge-insufficient {
-  @apply inline-flex px-2 py-0.5 rounded text-xs font-semibold bg-slate-500/20 text-slate-400 border border-slate-500/50;
+  @apply inline-flex px-2 py-0.5 rounded text-xs font-semibold;
+  background: rgba(75, 106, 138, 0.15);
+  color: #4b6a8a;
+  border: 1px solid rgba(75, 106, 138, 0.4);
 }
+
+/* Live indicator pulse */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.live-indicator {
+  position: relative;
+}
+
+.live-indicator::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: #34d399;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* Critical card glow */
+.critical-glow {
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.2);
+}
+
+/* Map marker animations */
+@keyframes marker-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.5); opacity: 0; }
+}
+
+.marker-pulse {
+  animation: marker-pulse 2s ease-in-out infinite;
+}
+
+/* Map tooltip */
+.map-tooltip {
+  background: rgba(8, 13, 20, 0.95);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  color: var(--text-primary);
+  font-size: 13px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Accent border left */
+.accent-border-critical { border-left: 3px solid #f43f5e; }
+.accent-border-elevated { border-left: 3px solid #fb923c; }
+.accent-border-moderate { border-left: 3px solid #fbbf24; }
+.accent-border-low { border-left: 3px solid #34d399; }
+.accent-border-insufficient { border-left: 3px solid #4b6a8a; }
 
 /* Skeleton animation */
 @keyframes pulse {
